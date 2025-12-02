@@ -2,6 +2,7 @@
 package solutions
 
 import (
+	"AdventOfCode2025/utils"
 	"math"
 	"strconv"
 )
@@ -16,11 +17,10 @@ func parseDay1Line(line string) int {
 }
 
 func parseDay1(input []string) []int {
-	results := make([]int, len(input))
-	for i, line := range input {
-		results[i] = parseDay1Line(line)
+	fn := func(i int) int {
+		return parseDay1Line(input[i])
 	}
-	return results
+	return utils.ParalleliseMap(fn, len(input))
 }
 
 func solveDay1Part1(moves []int) int {
