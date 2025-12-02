@@ -18,6 +18,7 @@ type solution struct {
 
 var SOLUTIONS = []solution{
 	{1, solutions.Day1},
+	{2, solutions.Day2},
 }
 
 func main() {
@@ -47,8 +48,8 @@ func main() {
 		}
 		minElapsed := time.Duration(0)
 		input := utils.GetInput(solution.day)
+		start := time.Now()
 		if *minRun {
-			start := time.Now()
 			for i := 0; i < *runCount-1; i++ {
 				start = time.Now()
 				solution.fn(input)
@@ -66,7 +67,6 @@ func main() {
 				fmt.Printf("| Day %d | %s |\n", solution.day, utils.TruncateToDynamicUnit(minElapsed))
 			}
 		} else {
-			start := time.Now()
 			for i := 0; i < *runCount-1; i++ {
 				solution.fn(input)
 			}
