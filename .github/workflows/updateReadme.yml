@@ -1,0 +1,33 @@
+name: Update README
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+      - '.github/**'
+      - '.gitignore'
+      - 'scripts/**'
+
+jobs:
+  update_readme:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.23.3
+      - name: Run Tests
+        run: go test ./...
+      - name: Update README
+        shell: bash
+        run: ./scripts/updatePerformanceTable.sh
+      - name: Commit changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add README.md
+          git commit -m "Update performance table"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
