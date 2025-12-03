@@ -38,4 +38,3 @@ echo "$NEW_CONTENT"
 
 git add "$README_FILE"
 git commit -m "Update performance table in README.md"
-git push 
