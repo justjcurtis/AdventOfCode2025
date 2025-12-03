@@ -4,6 +4,7 @@ import (
 	"AdventOfCode2025/utils"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 func parseDay2(input []string) [][]int {
@@ -72,7 +73,17 @@ func solveDay2(ranges [][]int, unlocked bool) int {
 
 func Day2(input []string) []string {
 	parsed := parseDay2(input)
-	day2Part1 := solveDay2(parsed, false)
-	day2Part2 := solveDay2(parsed, true)
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+	var day2Part1, day2Part2 int
+	go func() {
+		defer wg.Done()
+		day2Part1 = solveDay2(parsed, false)
+	}()
+	go func() {
+		defer wg.Done()
+		day2Part2 = solveDay2(parsed, true)
+	}()
+	wg.Wait()
 	return []string{strconv.Itoa(day2Part1), strconv.Itoa(day2Part2)}
 }
