@@ -19,6 +19,7 @@ type solution struct {
 var SOLUTIONS = []solution{
 	{1, solutions.Day1},
 	{2, solutions.Day2},
+	{3, solutions.Day3},
 }
 
 func main() {
