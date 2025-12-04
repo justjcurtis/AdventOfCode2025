@@ -36,43 +36,41 @@ func intPow10(n int) int {
 	return result
 }
 
-func solveDay2Fast(ranges [][]int, unlocked bool) int {
-	pow10 := []int{1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000}
-
-	intPow10 := func(n int) int { return pow10[n] }
-	intMax := func(a, b int) int {
-		if a > b {
-			return a
-		} else {
-			return b
-		}
+func intMax(a, b int) int {
+	if a > b {
+		return a
+	} else {
+		return b
 	}
-	intMin := func(a, b int) int {
-		if a < b {
-			return a
-		} else {
-			return b
-		}
-	}
+}
 
-	mobius := func(limit int) []int {
-		mu := make([]int, limit+1)
-		for i := range mu {
-			mu[i] = 1
-		}
-		for i := 2; i <= limit; i++ {
-			if mu[i] == 1 {
-				for j := i; j <= limit; j += i {
-					mu[j] *= -1
-				}
-				for j := i * i; j <= limit; j += i * i {
-					mu[j] = 0
-				}
+func intMin(a, b int) int {
+	if a < b {
+		return a
+	} else {
+		return b
+	}
+}
+
+func mobius(limit int) []int {
+	mu := make([]int, limit+1)
+	for i := range mu {
+		mu[i] = 1
+	}
+	for i := 2; i <= limit; i++ {
+		if mu[i] == 1 {
+			for j := i; j <= limit; j += i {
+				mu[j] *= -1
+			}
+			for j := i * i; j <= limit; j += i * i {
+				mu[j] = 0
 			}
 		}
-		return mu
 	}
+	return mu
+}
 
+func solveDay2Fast(ranges [][]int, unlocked bool) int {
 	fn := func(n int) int {
 		a, b := ranges[n][0], ranges[n][1]
 		minLength := lengthOfInt(a)
