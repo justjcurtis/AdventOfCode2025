@@ -27,18 +27,21 @@ func solveDay4(grid [][]rune, runForever bool) int {
 	totalSize := height * width
 	count := 0
 	g := make([]byte, totalSize)
+	stack := make([]int, totalSize)
 
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
 			char := grid[y][x]
 			key := utils.TwoDToOneD(x, y, width)
 			g[key] = byte(char)
+			stack[key] = key
 		}
 	}
 
-	var recurse func(i int) int
+	for len(stack) > 0 {
+		i := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
 
-	fn := func(i int) int {
 		var x, y int
 		x, y = utils.OneDTwoD(i, width)
 		char := g[i]
@@ -55,28 +58,23 @@ func solveDay4(grid [][]rune, runForever bool) int {
 				}
 			}
 			if occupied < 4 {
+				count++
 				if !runForever {
-					return 1
+					continue
 				}
 				g[i] = '.'
-				count := 1
 				for _, d := range dirs {
 					nx, ny := x+d.dx, y+d.dy
 					if nx >= 0 && nx < width && ny >= 0 && ny < height {
 						nkey := utils.TwoDToOneD(nx, ny, width)
-						count += recurse(nkey)
+						stack = append(stack, nkey)
 					}
 				}
-				return count
+				continue
 			}
 		}
-		return 0
 	}
-	recurse = fn
 
-	for i := 0; i < totalSize; i++ {
-		count += fn(i)
-	}
 	return count
 }
 
