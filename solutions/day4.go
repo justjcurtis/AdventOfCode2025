@@ -37,11 +37,9 @@ func solveDay4(grid [][]rune, runForever bool) int {
 		i := stack[len(stack)-1]
 		stack = stack[:len(stack)-1]
 
-		var x, y int
-		x, y = utils.OneDTwoD(i, width)
+		x, y := utils.OneDTwoD(i, width)
 		char := g[i]
 		if char == '@' {
-
 			occupied := 0
 			for _, d := range dirs {
 				nx, ny := x+d.dx, y+d.dy
