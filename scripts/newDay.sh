@@ -81,7 +81,7 @@ echo "Created day_${DAY}.txt"
 
 # Fetch and save the puzzle input
 echo "Fetching puzzle input for Day $DAY..."
-URL="https://adventofcode.com/2021/day/${DAY}/input"
+URL="https://adventofcode.com/${YEAR}/day/${DAY}/input"
 
 curl "$URL" \
     --cookie "session=${COOKIE}" \
