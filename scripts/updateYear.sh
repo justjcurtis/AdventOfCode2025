@@ -6,8 +6,12 @@ if [ -f .env ]; then
 fi
 
 # Find all files and replace 20xx with $YEAR
-find "." -type f \
-    -name "*.md" -o -name "*.go" -o -name "*.txt" | while read -r file; do
+find "." -type f \( \
+    -name "*.md" -o \
+    -name "*.go" -o \
+    -name "*.txt" -o \
+    -name "*.mod" \
+\) | while read -r file; do
     perl -pi -e "s/20\d\d/$YEAR/g" "$file"
 done
 
