@@ -16,11 +16,6 @@ func parseInputDay4(input []string) [][]rune {
 
 var dirs = []struct{ dx, dy int }{{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}}
 
-func getNeighbors(x, y, width, height int) []struct{ x, y int } {
-	neighbors := []struct{ x, y int }{}
-	return neighbors
-}
-
 func solveDay4(grid [][]rune, runForever bool) int {
 	width := len(grid[0])
 	height := len(grid)
