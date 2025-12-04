@@ -1,5 +1,5 @@
 
-## Advent Of Code 2027
+## Advent Of Code 2025
 
 > This year I thought I'd give it another ***go*** 
 
@@ -20,8 +20,8 @@
 - Clone the repo && cd into the directory
 
      ```
-     git clone https://github.com/justjcurtis/2027
-     cd AdventOfCode2027
+     git clone https://github.com/justjcurtis/2025
+     cd AdventOfCode2025
      ```
 - Add any dependencies (if required)
 
@@ -31,7 +31,7 @@
 
 - Add .env file in root dir with the following:
   ```
-  YEAR=2027
+  YEAR=2025
   COOKIE=your_advent_of_code_session_cookie_here
   ```
 
@@ -80,11 +80,11 @@ To build locally:
     ```
     go build .
     ```
-- A new file will be create in the root dir (`AdventOfCode2027`)
+- A new file will be create in the root dir (`AdventOfCode2025`)
 - Run the build with
 
     ```
-    ./AdventOfCode2027 
+    ./AdventOfCode2025 
     ```
 
 ### Results
@@ -93,9 +93,9 @@ Results show are the min runtime for each soltuion taken over 100 runs on an M2 
 
 | # | Runtime (both parts) |
 | - | -------------------- |
-| Day 1 | 77µs |
-| Day 2 | 18ms |
-| Day 3 | 59µs |
+| Day 1 | 29µs |
+| Day 2 | 19ms |
+| Day 3 | 63µs |
 | Day 4 | 41ns |
 | ------- | ----------------------------- |
 | **Total** | **19ms** |

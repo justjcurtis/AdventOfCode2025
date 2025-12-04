@@ -1,7 +1,10 @@
 .PHONY: newday
 .PHONY: update
+.PHONY: year
 
 newday:
 	./scripts/newDay.sh
 update:
-	./scripts/updatePerformanceTable.sh
+	./scripts/updateReadme.sh
+year:
+	./scripts/updateYear.sh
