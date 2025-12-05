@@ -36,13 +36,6 @@ func solveDay1Part1(moves []int) int {
 	return count
 }
 
-func getSign(x int) int {
-	if x < 0 {
-		return -1
-	}
-	return 1
-}
-
 func solveDay1Part2(moves []int) int {
 	value := 50
 	count := 0
@@ -63,7 +56,7 @@ func solveDay1Part2(moves []int) int {
 		}
 
 		if value != 0 && prev != 0 {
-			if getSign(prev) != getSign(after) {
+			if utils.GetSign(prev) != utils.GetSign(after) {
 				count++
 			} else if after/100 != prev/100 {
 				count++

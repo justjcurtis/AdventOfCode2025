@@ -19,39 +19,6 @@ func parseDay2(input []string) [][]int {
 	return ranges
 }
 
-func lengthOfInt(n int) int {
-	length := 0
-	for n > 0 {
-		n /= 10
-		length++
-	}
-	return length
-}
-
-func intPow10(n int) int {
-	result := 1
-	for i := 0; i < n; i++ {
-		result *= 10
-	}
-	return result
-}
-
-func intMax(a, b int) int {
-	if a > b {
-		return a
-	} else {
-		return b
-	}
-}
-
-func intMin(a, b int) int {
-	if a < b {
-		return a
-	} else {
-		return b
-	}
-}
-
 func mobius(limit int) []int {
 	mu := make([]int, limit+1)
 	for i := range mu {
@@ -73,8 +40,8 @@ func mobius(limit int) []int {
 func solveDay2Fast(ranges [][]int, unlocked bool) int {
 	fn := func(n int) int {
 		a, b := ranges[n][0], ranges[n][1]
-		minLength := lengthOfInt(a)
-		maxLength := lengthOfInt(b)
+		minLength := utils.LengthOfInt(a)
+		maxLength := utils.LengthOfInt(b)
 		var result int64 = 0
 
 		for length := minLength; length <= maxLength; length++ {
@@ -97,11 +64,11 @@ func solveDay2Fast(ranges [][]int, unlocked bool) int {
 				var factor int64 = 1
 				for i := 0; i < k; i++ {
 					multiplier += factor
-					factor *= int64(intPow10(p))
+					factor *= int64(utils.IntPow10(p))
 				}
 
-				low := intMax(intPow10(p-1), int((int64(a)+multiplier-1)/multiplier))
-				high := intMin(b/int(multiplier), intPow10(p)-1)
+				low := utils.IntMax(utils.IntPow10(p-1), int((int64(a)+multiplier-1)/multiplier))
+				high := utils.IntMin(b/int(multiplier), utils.IntPow10(p)-1)
 				if low > high {
 					continue
 				}
