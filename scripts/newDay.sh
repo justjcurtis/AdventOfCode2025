@@ -73,7 +73,7 @@ END {
 }
 ' "$MAIN_FILE" > "${MAIN_FILE}.tmp" && mv "${MAIN_FILE}.tmp" "$MAIN_FILE"
 
-echo "Added Day${DAY} to SOLUTIONS list"
+echo "Added Day ${DAY} to SOLUTIONS list"
 
 # Create the new day file
 touch "$PUZZLE_DIR/day_${DAY}.txt"
@@ -87,6 +87,7 @@ curl "$URL" \
     --cookie "session=${COOKIE}" \
     -A "bash script for personal use" \
     -s > "$PUZZLE_DIR/day_${DAY}.txt"
+echo "Fetched puzzle input for Day $DAY"
 
 # Create the new test file
 touch "$PUZZLE_DIR/test_${DAY}.txt"
@@ -124,7 +125,4 @@ func TestDay${DAY}(t *testing.T) {
 }
 EOL
 echo "Created day${DAY}_test.go"
-
-
-echo "Done!"
 
