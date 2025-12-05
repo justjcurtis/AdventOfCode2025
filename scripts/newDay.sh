@@ -123,6 +123,16 @@ func TestDay${DAY}(t *testing.T) {
 		t.Errorf("Expected %v but was %v", expected, actual)
 	}
 }
+
+
+// func TestDay${DAY}RealData(t *testing.T) {
+// 	input := utils.GetInputForTest(${DAY})
+// 	expected := []string{""}
+// 	actual := Day${DAY}(input)
+// 	if !reflect.DeepEqual(expected, actual) {
+// 		t.Errorf("Expected %v but was %v", expected, actual)
+// 	}
+// }
 EOL
 echo "Created day${DAY}_test.go"
 
