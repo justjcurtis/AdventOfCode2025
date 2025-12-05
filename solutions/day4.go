@@ -24,12 +24,13 @@ func solveDay4(grid [][]rune, runForever bool) int {
 	g := make([]byte, totalSize)
 	stack := make([]int, totalSize)
 
+	pos := 0
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
 			char := grid[y][x]
-			key := utils.TwoDToOneD(x, y, width)
-			g[key] = byte(char)
-			stack[key] = key
+			g[pos] = byte(char)
+			stack[pos] = pos
+			pos++
 		}
 	}
 
