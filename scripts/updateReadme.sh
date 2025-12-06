@@ -50,8 +50,8 @@ UPDATED_TABLE="${UPDATED_TABLE}| **Total** | **${TOTAL}µs** |"
 
 {
     head -n "$START_LINE" "$README_FILE"
-    printf "%b" "$UPDATED_TABLE"
-    tail -n +"$END_LINE" "$README_FILE"
+    printf "%b\n\n" "$UPDATED_TABLE"
+    tail -n +"$((END_LINE + 1))" "$README_FILE"
 } > "${README_FILE}.tmp"
 
 mv "${README_FILE}.tmp" "$README_FILE"
