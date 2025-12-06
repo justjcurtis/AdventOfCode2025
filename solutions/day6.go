@@ -11,43 +11,45 @@ type WorkbookColumn struct {
 	op   byte
 }
 
-var colBufferCache [][]byte
-
 func newColBuffer(height int) [][]byte {
-	if colBufferCache == nil {
-		nums := make([][]byte, height)
-		for i := range height {
-			nums[i] = []byte{}
-		}
-		colBufferCache = nums
-		return nums
-	}
+	nums := make([][]byte, height)
 	for i := range height {
-		colBufferCache[i] = colBufferCache[i][:0]
+		nums[i] = []byte{}
 	}
-	return colBufferCache
+	return nums
 }
 
-func parseDay6Input(input []string) []WorkbookColumn {
-	columns := []WorkbookColumn{}
+func getCols(input []string) [][2]int {
 	width := len(input[0])
 	height := len(input)
-	colBuffer := newColBuffer(height - 1)
-	op := byte(' ')
+	result := [][2]int{}
+	lastGap := 0
 	for j := range width {
 		isGap := true
+		for i := 0; i < height-1; i++ {
+			char := input[i][j]
+			if char != ' ' {
+				isGap = false
+				break
+			}
+		}
+		if isGap {
+			result = append(result, [2]int{lastGap, j - lastGap})
+			lastGap = j + 1
+		}
+	}
+	result = append(result, [2]int{lastGap, width - lastGap})
+	return result
+}
+
+func parseDay6Col(input []string, start, width, height int) WorkbookColumn {
+	colBuffer := newColBuffer(height - 1)
+	op := byte(' ')
+	for j := start; j < start+width; j++ {
 		vert := make([]byte, height-1)
 		for i := 0; i < height-1; i++ {
 			char := input[i][j]
 			vert[i] = char
-			if char != ' ' {
-				isGap = false
-			}
-		}
-		if isGap {
-			columns = append(columns, WorkbookColumn{nums: utils.Clone2D(colBuffer), op: op})
-			colBuffer = newColBuffer(height - 1)
-			continue
 		}
 		for v, char := range vert {
 			colBuffer[v] = append(colBuffer[v], char)
@@ -57,7 +59,21 @@ func parseDay6Input(input []string) []WorkbookColumn {
 			op = opChar
 		}
 	}
-	columns = append(columns, WorkbookColumn{nums: utils.Clone2D(colBuffer), op: op})
+	return WorkbookColumn{nums: colBuffer, op: op}
+
+}
+
+func parseDay6Input(input []string) []WorkbookColumn {
+	height := len(input)
+	colsInfo := getCols(input)
+	columns := make([]WorkbookColumn, len(colsInfo))
+	fn := func(i int) {
+		colInfo := colsInfo[i]
+		start := colInfo[0]
+		colWidth := colInfo[1]
+		columns[i] = parseDay6Col(input, start, colWidth, height)
+	}
+	utils.ParalleliseVoid(fn, len(colsInfo))
 	return columns
 }
 
@@ -72,10 +88,10 @@ func doOperation(a int, b int, op byte) int {
 	}
 }
 
-func getNums(numStrs [][]byte, cephalopod bool) []int {
+func getNums(numsRaw [][]byte, cephalopod bool) []int {
 	if !cephalopod {
-		nums := make([]int, len(numStrs))
-		for i, s := range numStrs {
+		nums := make([]int, len(numsRaw))
+		for i, s := range numsRaw {
 			numBuffer := 0
 			for _, char := range s {
 				if char == ' ' {
@@ -88,12 +104,12 @@ func getNums(numStrs [][]byte, cephalopod bool) []int {
 		}
 		return nums
 	}
-	width := len(numStrs[0])
+	width := len(numsRaw[0])
 	nums := make([]int, width)
 	for j := range width {
 		numBuffer := 0
-		for i := range numStrs {
-			char := numStrs[i][j]
+		for i := range numsRaw {
+			char := numsRaw[i][j]
 			if char == ' ' {
 				continue
 			}
