@@ -7,15 +7,23 @@ import (
 )
 
 type WorkbookColumn struct {
-	nums []string
+	nums [][]byte
 	op   rune
+}
+
+func newColBuffer(height int) WorkbookColumn {
+	colBuffer := WorkbookColumn{nums: make([][]byte, height)}
+	for v := range colBuffer.nums {
+		colBuffer.nums[v] = []byte{}
+	}
+	return colBuffer
 }
 
 func parseDay6Input(input []string) []WorkbookColumn {
 	columns := []WorkbookColumn{}
-	colBuffer := WorkbookColumn{nums: make([]string, len(input)-1)}
 	width := len(input[0])
 	height := len(input)
+	colBuffer := newColBuffer(height - 1)
 	for j := range width {
 		isGap := true
 		vert := make([]rune, height-1)
@@ -28,22 +36,18 @@ func parseDay6Input(input []string) []WorkbookColumn {
 		}
 		if isGap {
 			columns = append(columns, colBuffer)
-			colBuffer = WorkbookColumn{nums: make([]string, len(input)-1)}
+			colBuffer = newColBuffer(height - 1)
 			continue
 		}
 		for v, char := range vert {
-			colBuffer.nums[v] += string(char)
+			colBuffer.nums[v] = append(colBuffer.nums[v], byte(char))
+		}
+		opChar := rune(input[height-1][j])
+		if opChar != ' ' {
+			colBuffer.op = opChar
 		}
 	}
 	columns = append(columns, colBuffer)
-	colIdx := 0
-	for j := range width {
-		char := input[height-1][j]
-		if char != ' ' {
-			columns[colIdx].op = rune(char)
-			colIdx++
-		}
-	}
 	return columns
 }
 
@@ -58,7 +62,7 @@ func doOperation(a int, b int, op rune) int {
 	}
 }
 
-func getNums(numStrs []string, cephalopod bool) []int {
+func getNums(numStrs [][]byte, cephalopod bool) []int {
 	if !cephalopod {
 		nums := make([]int, len(numStrs))
 		for i, s := range numStrs {
