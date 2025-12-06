@@ -8,15 +8,24 @@ import (
 
 type WorkbookColumn struct {
 	nums [][]byte
-	op   rune
+	op   byte
 }
 
-func newColBuffer(height int) WorkbookColumn {
-	colBuffer := WorkbookColumn{nums: make([][]byte, height)}
-	for v := range colBuffer.nums {
-		colBuffer.nums[v] = []byte{}
+var colBufferCache [][]byte
+
+func newColBuffer(height int) [][]byte {
+	if colBufferCache == nil {
+		nums := make([][]byte, height)
+		for i := range height {
+			nums[i] = []byte{}
+		}
+		colBufferCache = nums
+		return nums
 	}
-	return colBuffer
+	for i := range height {
+		colBufferCache[i] = colBufferCache[i][:0]
+	}
+	return colBufferCache
 }
 
 func parseDay6Input(input []string) []WorkbookColumn {
@@ -24,34 +33,35 @@ func parseDay6Input(input []string) []WorkbookColumn {
 	width := len(input[0])
 	height := len(input)
 	colBuffer := newColBuffer(height - 1)
+	op := byte(' ')
 	for j := range width {
 		isGap := true
-		vert := make([]rune, height-1)
+		vert := make([]byte, height-1)
 		for i := 0; i < height-1; i++ {
 			char := input[i][j]
-			vert[i] = rune(char)
+			vert[i] = char
 			if char != ' ' {
 				isGap = false
 			}
 		}
 		if isGap {
-			columns = append(columns, colBuffer)
+			columns = append(columns, WorkbookColumn{nums: utils.Clone2D(colBuffer), op: op})
 			colBuffer = newColBuffer(height - 1)
 			continue
 		}
 		for v, char := range vert {
-			colBuffer.nums[v] = append(colBuffer.nums[v], byte(char))
+			colBuffer[v] = append(colBuffer[v], char)
 		}
-		opChar := rune(input[height-1][j])
+		opChar := input[height-1][j]
 		if opChar != ' ' {
-			colBuffer.op = opChar
+			op = opChar
 		}
 	}
-	columns = append(columns, colBuffer)
+	columns = append(columns, WorkbookColumn{nums: utils.Clone2D(colBuffer), op: op})
 	return columns
 }
 
-func doOperation(a int, b int, op rune) int {
+func doOperation(a int, b int, op byte) int {
 	switch op {
 	case '+':
 		return a + b
