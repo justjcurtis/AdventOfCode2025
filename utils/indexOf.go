@@ -1,6 +1,3 @@
-/*
-Copyright © 2025 Jacson Curtis <justjcurtis@gmail.com>
-*/
 package utils
 
 func IndexOf[T comparable](arr []T, val T) int {

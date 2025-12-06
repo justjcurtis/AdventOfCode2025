@@ -1,6 +1,4 @@
-/*
-Copyright © 2025 Jacson Curtis <justjcurtis@gmail.com>
-*/
+// Package utils contains utility functions for Advent of Code solutions.
 package utils
 
 func ArrAcc[T any](a []T, b []T) []T {

@@ -1,6 +1,3 @@
-/*
-Copyright © 2025 Jacson Curtis <justjcurtis@gmail.com>
-*/
 package utils
 
 import (
@@ -20,9 +17,9 @@ func TestSzudzikPairing(t *testing.T) {
 	for i := 1; i < 1000; i++ {
 		for j := 1; j < 1000; j++ {
 			pair := SzudzikPairing(i, j)
-			unpair_i, unpair_j := SzudzikUnpairing(pair)
-			if i != unpair_i || j != unpair_j {
-				t.Errorf("SzudzikPairing(%d, %d) = %d, SzudzikUnpairing(%d) = (%d, %d)", i, j, pair, pair, unpair_i, unpair_j)
+			unpairI, unpairJ := SzudzikUnpairing(pair)
+			if i != unpairI || j != unpairJ {
+				t.Errorf("SzudzikPairing(%d, %d) = %d, SzudzikUnpairing(%d) = (%d, %d)", i, j, pair, pair, unpairI, unpairJ)
 			}
 		}
 	}
@@ -33,9 +30,9 @@ func TestTwoDToOneD(t *testing.T) {
 		for j := 0; j < 1000; j++ {
 			for k := i + 1; k <= 1000; k++ {
 				pair := TwoDToOneD(i, j, k)
-				unpair_i, unpair_j := OneDTwoD(pair, k)
-				if i != unpair_i || j != unpair_j {
-					t.Errorf("TwoDToOneD(%d, %d, %d) = %d, OneDTwoD(%d, %d) = (%d, %d)", i, j, k, pair, pair, k, unpair_i, unpair_j)
+				unpairI, unpairJ := OneDTwoD(pair, k)
+				if i != unpairI || j != unpairJ {
+					t.Errorf("TwoDToOneD(%d, %d, %d) = %d, OneDTwoD(%d, %d) = (%d, %d)", i, j, k, pair, pair, k, unpairI, unpairJ)
 				}
 			}
 		}

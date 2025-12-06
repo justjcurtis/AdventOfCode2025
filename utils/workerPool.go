@@ -1,6 +1,3 @@
-/*
-Copyright © 2025 Jacson Curtis <justjcurtis@gmail.com>
-*/
 package utils
 
 import "runtime"
