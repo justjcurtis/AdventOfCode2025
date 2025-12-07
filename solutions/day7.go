@@ -7,11 +7,13 @@ import (
 
 func solveDay7(input [][]byte) (int, int) {
 	width := len(input[0])
-	mid := (width / 2)
+	mid := width / 2
 	beams := []int{mid}
+
 	splitCount := 0
 	timelines := make([]int, width)
 	timelines[mid] = 1
+
 	for i := 2; i < len(input); i++ {
 		line := input[i]
 		for b := len(beams) - 1; b >= 0; b-- {
@@ -28,31 +30,42 @@ func solveDay7(input [][]byte) (int, int) {
 				continue
 			}
 			splitCount++
-			timelines[j-1] += timelines[j]
-			timelines[j+1] += timelines[j]
+			t := timelines[j]
 			timelines[j] = 0
-			if line[j+1] == '|' {
-				if line[j-1] == '|' {
-					beams = append(beams[:b], beams[b+1:]...)
-					continue
-				}
+			timelines[j-1] += t
+			timelines[j+1] += t
+
+			leftBlocked := line[j-1] == '|'
+			rightBlocked := line[j+1] == '|'
+
+			switch {
+			case leftBlocked && rightBlocked:
+				last := len(beams) - 1
+				beams[b] = beams[last]
+				beams = beams[:last]
+				continue
+			case rightBlocked:
 				beams[b] = j - 1
 				line[j-1] = '|'
 				continue
-			}
-			beams[b] = j + 1
-			line[j+1] = '|'
-			if line[j-1] == '|' {
+			case leftBlocked:
+				beams[b] = j + 1
+				line[j+1] = '|'
 				continue
+			default:
+				beams[b] = j + 1
+				line[j+1] = '|'
+				beams = append(beams, j-1)
+				line[j-1] = '|'
 			}
-			beams = append(beams, j-1)
-			line[j-1] = '|'
 		}
 	}
+
 	timelineCount := 0
 	for _, v := range timelines {
 		timelineCount += v
 	}
+
 	return splitCount, timelineCount
 }
 
