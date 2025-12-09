@@ -1,5 +1,12 @@
 package utils
 
+func IntAbs(n int) int {
+	if n < 0 {
+		return -n
+	}
+	return n
+}
+
 func LengthOfInt(n int) int {
 	length := 0
 	for n > 0 {
@@ -11,7 +18,7 @@ func LengthOfInt(n int) int {
 
 func IntPow10(n int) int {
 	result := 1
-	for i := 0; i < n; i++ {
+	for range n {
 		result *= 10
 	}
 	return result
