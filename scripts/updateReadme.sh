@@ -1,4 +1,3 @@
-
 README_FILE="README.md"
 NEW_CONTENT=$(go run . -min -r -n=1000)
 
@@ -32,15 +31,43 @@ extract_time() {
   awk -F'|' -v d="$2" '
     {
       gsub(/^[[:space:]]+|[[:space:]]+$/, "", $2)
-      if ($2 == "Day " d) {
-        t = $3
+      if ($2 != "Day " d) next
+
+      t = $3
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", t)
+
+      # ends with ms
+      if (t ~ /ms$/) {
+        sub(/ms$/, "", t)
+        if (t ~ /^[0-9]+$/) {
+          print t * 1000   # convert ms → µs
+          exit
+        }
+      }
+
+      # ends with µs (UTF-8 safe: strip last byte 's' then guess µ)
+      if (t ~ /s$/) {
+        sub(/s$/, "", t)   # remove trailing s
+        # whatever remains should be the number + µ
         gsub(/[^0-9]/, "", t)
-        if (t != "") { print t; exit }
+        if (t ~ /^[0-9]+$/) {
+          print t          # already µs
+          exit
+        }
       }
     }
   ' <<EOF
 $1
 EOF
+}
+
+format_time() {
+  local t="$1"
+  if [ "$t" -ge 1000 ]; then
+    echo "$((t / 1000))ms"
+  else
+    echo "${t}µs"
+  fi
 }
 
 for n in $ALL_NUMS; do
@@ -66,12 +93,12 @@ for n in $ALL_NUMS; do
     continue
   fi
 
-  UPDATED_TABLE="${UPDATED_TABLE}| $day | ${time}µs |\n"
+  UPDATED_TABLE="${UPDATED_TABLE}| $day | $(format_time "$time") |\n"
   TOTAL=$((TOTAL + time))
 done
 
 UPDATED_TABLE="${UPDATED_TABLE}| ------- | ----------------------------- |\n"
-UPDATED_TABLE="${UPDATED_TABLE}| **Total** | **${TOTAL}µs** |\n"
+UPDATED_TABLE="${UPDATED_TABLE}| **Total** | **$(format_time "$TOTAL")** |\n"
 
 {
   head -n "$START_LINE" "$README_FILE"
