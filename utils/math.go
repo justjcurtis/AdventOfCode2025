@@ -1,5 +1,15 @@
 package utils
 
+func GCD(a, b int) int {
+	for b != 0 {
+		a, b = b, a%b
+	}
+	if a < 0 {
+		a = -a
+	}
+	return a
+}
+
 func IntAbs(n int) int {
 	if n < 0 {
 		return -n
