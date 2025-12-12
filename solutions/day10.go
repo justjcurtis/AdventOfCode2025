@@ -2,328 +2,366 @@ package solutions
 
 import (
 	"AdventOfCode2025/utils"
+	"bytes"
 	"math"
+	"math/bits"
 	"slices"
 	"strconv"
-	"strings"
 	"sync"
 )
 
-type Machine10 struct {
-	Target   []bool
-	Buttons  [][]int
-	Joltages []int
-}
+const epsilon = 1e-9
 
-func parseLine10(line string) Machine10 {
-	sections := make([]string, 3)
-	prev := 0
-	for i, char := range line {
-		if prev == 0 && char == '(' {
-			sections[0] = line[prev+1 : i-2]
-			prev = i
-		}
-		if prev > 0 && char == '{' {
-			sections[1] = line[prev : i-1]
-			sections[2] = line[i+1 : len(line)-1]
-		}
-	}
-	target := make([]bool, len(sections[0]))
-	for i, char := range sections[0] {
-		if char == '#' {
-			target[i] = true
-		}
-	}
-
-	buttonStr := strings.Split(sections[1], " ")
-	buttons := make([][]int, len(buttonStr))
-	for i, bStr := range buttonStr {
-		str := bStr[1 : len(bStr)-1]
-		numStrs := strings.Split(str, ",")
-		buttons[i] = make([]int, len(numStrs))
-		for j, nStr := range numStrs {
-			num, _ := strconv.Atoi(nStr)
-			buttons[i][j] = num
-		}
-	}
-	joltageStrs := strings.Split(sections[2], ",")
-	joltages := make([]int, len(joltageStrs))
-	for i, jStr := range joltageStrs {
-		num, _ := strconv.Atoi(jStr)
-		joltages[i] = num
-	}
-
-	return Machine10{
-		Target:   target,
-		Buttons:  buttons,
-		Joltages: joltages,
-	}
-}
-
-func parseDay10(input []string) []Machine10 {
-	machines := make([]Machine10, len(input))
-	fn := func(i int) {
-		machines[i] = parseLine10(input[i])
-	}
-	utils.ParalleliseVoid(fn, len(input))
-	return machines
-}
-
-func arrEquals[T comparable](a, joltages []T) bool {
-	if len(a) != len(joltages) {
-		return false
-	}
-	for i := range a {
-		if a[i] != joltages[i] {
-			return false
-		}
-	}
-	return true
-}
-
-func generateCombosNoRepeat(length, opts int) [][]int {
-	result := [][]int{}
-	if length == 1 {
-		for i := range opts {
-			result = append(result, []int{i})
-		}
-		return result
-	}
-	subCombos := generateCombosNoRepeat(length-1, opts)
-	for _, sub := range subCombos {
-		used := map[int]bool{}
-		for _, v := range sub {
-			used[v] = true
-		}
-		for i := range opts {
-			if !used[i] {
-				newCombo := append([]int{}, sub...)
-				newCombo = append(newCombo, i)
-				result = append(result, newCombo)
-			}
-		}
+func atoiByte(buf []byte) int {
+	result := 0
+	for _, c := range buf {
+		result = result*10 + int(c-'0')
 	}
 	return result
 }
 
-func solveDay10Part1(machines []Machine10) int {
-	fn := func(i int) int {
-		machine := machines[i]
-		for presses := 1; presses <= len(machine.Buttons); presses++ {
-			combos := generateCombosNoRepeat(presses, len(machine.Buttons))
-			for _, combo := range combos {
-				state := make([]bool, len(machine.Target))
-				for _, buttonIndex := range combo {
-					button := machine.Buttons[buttonIndex]
-					for _, toggleIndex := range button {
-						state[toggleIndex] = !state[toggleIndex]
+func stripBrackets(input []byte) []byte {
+	return input[1 : len(input)-1]
+}
+
+func parseInputDay10(input []string) ([][]uint16, []uint16, [][]int) {
+	var switches [][]uint16
+	var lights []uint16
+	var jolts [][]int
+
+	for _, line := range input {
+		lineBytes := []byte(line)
+		fields := bytes.Split(lineBytes, []byte(" "))
+
+		lightFieldRaw := fields[0]
+		lightPatternContent := stripBrackets(lightFieldRaw)
+
+		var light uint16
+		for i, char := range lightPatternContent {
+			if char == '#' {
+				light |= 1 << i
+			}
+		}
+		lights = append(lights, light)
+
+		switchFieldsRaw := fields[1 : len(fields)-1]
+		currentSwitchRow := make([]uint16, len(switchFieldsRaw))
+
+		for idx, field := range switchFieldsRaw {
+			fieldContent := stripBrackets(field)
+
+			for part := range bytes.SplitSeq(fieldContent, []byte(",")) {
+				position := atoiByte(part)
+				currentSwitchRow[idx] |= 1 << uint16(position)
+			}
+		}
+		switches = append(switches, currentSwitchRow)
+
+		joltFieldRaw := fields[len(fields)-1]
+		joltValuesContent := stripBrackets(joltFieldRaw)
+
+		joltSets := bytes.Split(joltValuesContent, []byte(","))
+		currentJolts := make([]int, len(joltSets))
+
+		for i, valuePart := range joltSets {
+			currentJolts[i] = atoiByte(valuePart)
+		}
+		jolts = append(jolts, currentJolts)
+	}
+
+	return switches, lights, jolts
+}
+
+func solveDay10Part1(switches [][]uint16, lights []uint16) int {
+	return utils.Parallelise(utils.IntAcc, func(lightIndex int) int {
+		row := switches[lightIndex]
+
+		maxBitLength := 0
+		for _, state := range row {
+			stateBits := bits.Len16(state)
+			if stateBits > maxBitLength {
+				maxBitLength = stateBits
+			}
+		}
+
+		numStates := 1 << maxBitLength
+		distanceMap := make([]int, numStates)
+		for i := range distanceMap {
+			distanceMap[i] = -1
+		}
+		distanceMap[0] = 0
+
+		queue := []uint16{0}
+
+		for idx := 0; idx < len(queue); idx++ {
+			currentState := queue[idx]
+
+			for _, switchConfig := range row {
+				nextState := currentState ^ switchConfig
+
+				if distanceMap[nextState] != -1 {
+					continue
+				}
+
+				distanceMap[nextState] = distanceMap[currentState] + 1
+				queue = append(queue, nextState)
+			}
+		}
+
+		return distanceMap[lights[lightIndex]]
+	}, len(lights))
+}
+
+func lpSimplexSolver(constraints [][]float64, objective []float64) (float64, []float64) {
+	numConstraints := len(constraints)
+	numVars := len(constraints[0]) - 1
+
+	nonBasic := make([]int, numVars+1)
+	for i := range numVars {
+		nonBasic[i] = i
+	}
+	nonBasic[numVars] = -1
+
+	basic := make([]int, numConstraints)
+	for i := range numConstraints {
+		basic[i] = numVars + i
+	}
+
+	tableau := make([][]float64, numConstraints+2)
+
+	for i := range numConstraints {
+		tableau[i] = make([]float64, numVars+2)
+		tableau[i][numVars+1] = -1
+		copy(tableau[i], constraints[i])
+	}
+
+	tableau[numConstraints] = make([]float64, numVars+2)
+	copy(tableau[numConstraints], objective)
+	tableau[numConstraints][numVars] = 0
+	tableau[numConstraints][numVars+1] = 0
+
+	tableau[numConstraints+1] = make([]float64, numVars+2)
+
+	for i := range numConstraints {
+		tableau[i][numVars], tableau[i][numVars+1] =
+			tableau[i][numVars+1], tableau[i][numVars]
+	}
+	tableau[numConstraints+1][numVars] = 1
+
+	pivot := func(row, col int) {
+		scale := 1.0 / tableau[row][col]
+
+		for i := range numConstraints + 2 {
+			if i == row {
+				continue
+			}
+			for j := range numVars + 2 {
+				if j != col {
+					tableau[i][j] -= tableau[row][j] * tableau[i][col] * scale
+				}
+			}
+		}
+
+		for j := range numVars + 2 {
+			tableau[row][j] *= scale
+		}
+
+		for i := range numConstraints + 2 {
+			tableau[i][col] *= -scale
+		}
+
+		tableau[row][col] = scale
+
+		basic[row], nonBasic[col] = nonBasic[col], basic[row]
+	}
+
+	findPivotAndOptimize := func(phase int) bool {
+		for {
+			enterCol := -1
+			minValue := math.Inf(1)
+
+			for i := range numVars + 1 {
+				if phase != 0 || nonBasic[i] != -1 {
+					val := tableau[numConstraints+phase][i]
+					if val < minValue || (val == minValue && nonBasic[i] < nonBasic[enterCol]) {
+						enterCol = i
+						minValue = val
 					}
 				}
-				if arrEquals(state, machine.Target) {
-					return presses
+			}
+
+			if -epsilon < tableau[numConstraints+phase][enterCol] {
+				return true
+			}
+
+			leaveRow := -1
+			minRatio := math.Inf(1)
+
+			for i := range numConstraints {
+				if tableau[i][enterCol] > epsilon {
+					ratio := tableau[i][numVars+1] / tableau[i][enterCol]
+					if ratio < minRatio || (ratio == minRatio && basic[i] < basic[leaveRow]) {
+						leaveRow = i
+						minRatio = ratio
+					}
+				}
+			}
+
+			if leaveRow == -1 {
+				return false
+			}
+
+			pivot(leaveRow, enterCol)
+		}
+	}
+
+	startRow := 0
+	minRHS := tableau[0][numVars+1]
+
+	for i := 1; i < numConstraints; i++ {
+		if tableau[i][numVars+1] < minRHS {
+			startRow = i
+			minRHS = tableau[i][numVars+1]
+		}
+	}
+
+	if -epsilon > tableau[startRow][numVars+1] {
+		pivot(startRow, numVars)
+
+		if !findPivotAndOptimize(1) || tableau[numConstraints+1][numVars+1] < -epsilon {
+			return math.Inf(-1), nil
+		}
+	}
+
+	for i := range numConstraints {
+		if basic[i] == -1 {
+			enterCol := 0
+			minVal := tableau[i][0]
+
+			for j := 1; j < numVars; j++ {
+				if tableau[i][j] < minVal || (tableau[i][j] == minVal && nonBasic[j] < nonBasic[enterCol]) {
+					enterCol = j
+					minVal = tableau[i][j]
+				}
+			}
+
+			pivot(i, enterCol)
+		}
+	}
+
+	if findPivotAndOptimize(0) {
+		solution := make([]float64, numVars)
+		for i := range numConstraints {
+			if basic[i] >= 0 && basic[i] < numVars {
+				solution[basic[i]] = tableau[i][numVars+1]
+			}
+		}
+
+		result := 0.0
+		for i := range numVars {
+			result += objective[i] * solution[i]
+		}
+
+		return result, solution
+	}
+
+	return math.Inf(-1), nil
+}
+
+func branchAndBound(constraints [][]float64, objective []float64) int {
+	bestValue := math.Inf(1)
+
+	numVars := len(constraints[0]) - 1
+
+	var branch func(currentConstraints [][]float64)
+
+	branch = func(currentConstraints [][]float64) {
+		val, solution := lpSimplexSolver(currentConstraints, objective)
+
+		if bestValue < val+epsilon || math.IsInf(val, -1) {
+			return
+		}
+
+		branchVar := -1
+		branchVal := 0
+
+		for i, sol := range solution {
+			if epsilon < math.Abs(sol-math.Round(sol)) {
+				branchVar = i
+				branchVal = int(sol)
+				break
+			}
+		}
+
+		if branchVar == -1 {
+			if val+epsilon < bestValue {
+				bestValue = val
+			}
+		} else {
+			newConstraint := make([]float64, numVars+1)
+			newConstraint[numVars] = float64(branchVal)
+			newConstraint[branchVar] = 1
+			branch(append(currentConstraints, newConstraint))
+
+			newConstraint = make([]float64, numVars+1)
+			newConstraint[numVars] = float64(^branchVal)
+			newConstraint[branchVar] = -1
+			branch(append(currentConstraints, newConstraint))
+		}
+	}
+
+	branch(constraints)
+
+	return int(math.Round(bestValue))
+}
+
+func solveDay10Part2(switchBitmasks [][]uint16, joltLimits [][]int) int {
+	processInstance := func(idx int) int {
+		switchRow := switchBitmasks[idx]
+		joltRow := joltLimits[idx]
+
+		numSwitches := len(switchRow)
+		maxBits := 0
+		for _, mask := range switchRow {
+			maxBits = max(maxBits, bits.Len16(mask))
+		}
+
+		constraintMatrix := make([][]float64, 2*maxBits+numSwitches)
+		for r := range constraintMatrix {
+			constraintMatrix[r] = make([]float64, numSwitches+1)
+		}
+
+		for col, mask := range switchRow {
+			row := (2*maxBits + len(switchRow)) - 1 - col
+			constraintMatrix[row][col] = -1
+
+			for bit := 0; bit < maxBits; bit++ {
+				if mask&(1<<bit) != 0 {
+					constraintMatrix[bit][col] = 1
+					constraintMatrix[bit+maxBits][col] = -1
 				}
 			}
 		}
-		return -1
-	}
-	return utils.Parallelise(utils.IntAcc, fn, len(machines))
-}
 
-func swapRow(buttonMatrix [][]int, joltages []int, i, j int) {
-	if i != j {
-		buttonMatrix[i], buttonMatrix[j] = buttonMatrix[j], buttonMatrix[i]
-		joltages[i], joltages[j] = joltages[j], joltages[i]
-	}
-}
-
-func swapCol(buttonMatrix [][]int, bounds []int, i, j int) {
-	if i != j {
-		for k := range buttonMatrix {
-			buttonMatrix[k][i], buttonMatrix[k][j] = buttonMatrix[k][j], buttonMatrix[k][i]
-		}
-		bounds[i], bounds[j] = bounds[j], bounds[i]
-	}
-}
-
-func reduceRow(buttonMatrix [][]int, joltages []int, i, j int) {
-	x := buttonMatrix[i][i]
-	y := -buttonMatrix[j][i]
-	d := utils.GCD(x, y)
-	for k := range buttonMatrix[i] {
-		buttonMatrix[j][k] = (y*buttonMatrix[i][k] + x*buttonMatrix[j][k]) / d
-	}
-	joltages[j] = (y*joltages[i] + x*joltages[j]) / d
-}
-
-func reduceButtonMatrix(buttonMatrix [][]int, joltages, bounds []int) ([][]int, []int, []int) {
-	nRows := len(buttonMatrix)
-	if nRows == 0 {
-		return buttonMatrix, joltages, bounds
-	}
-	nCols := len(buttonMatrix[0])
-
-	for i := range nCols {
-		buf := []int{}
-		k := i
-		for len(buf) == 0 && k < nCols {
-			swapCol(buttonMatrix, bounds, i, k)
-			buf = []int{}
-			for j := i; j < nRows; j++ {
-				if buttonMatrix[j][i] != 0 {
-					buf = append(buf, j)
-				}
-			}
-			k++
-		}
-		if len(buf) == 0 {
-			break
-		}
-		swapRow(buttonMatrix, joltages, i, buf[0])
-		for j := i + 1; j < nRows; j++ {
-			reduceRow(buttonMatrix, joltages, i, j)
-		}
-	}
-
-	buf := []int{}
-	for i := range buttonMatrix {
-		nonZero := false
-		for _, v := range buttonMatrix[i] {
-			if v != 0 {
-				nonZero = true
-				break
-			}
-		}
-		if nonZero {
-			buf = append(buf, i)
-		}
-	}
-	newButtonMatrix := [][]int{}
-	newJoltages := []int{}
-	for _, i := range buf {
-		newButtonMatrix = append(newButtonMatrix, buttonMatrix[i])
-		newJoltages = append(newJoltages, joltages[i])
-	}
-
-	for i := len(newButtonMatrix) - 1; i >= 0; i-- {
-		for j := 0; j < i; j++ {
-			reduceRow(newButtonMatrix, newJoltages, i, j)
-		}
-	}
-
-	return newButtonMatrix, newJoltages, bounds
-}
-
-func minimizeButtonPressSum(buttonMatrix [][]int, joltages, bounds []int) int {
-	r := len(buttonMatrix)
-	n := len(buttonMatrix[0])
-	free := utils.IntMax(n-r, 0)
-
-	freeCombos := generateFreeParamCombos(free, bounds)
-
-	minSum := math.MaxInt32
-
-	for _, fc := range freeCombos {
-		valid := true
-		depVars := make([]int, r)
-		for i := range r {
-			sum := 0
-			for j := range free {
-				sum += fc[j] * buttonMatrix[i][r+j]
-			}
-			diff := joltages[i] - sum
-			if diff%buttonMatrix[i][i] != 0 {
-				valid = false
-				break
-			}
-			dep := diff / buttonMatrix[i][i]
-			if dep < 0 {
-				valid = false
-				break
-			}
-			depVars[i] = dep
+		for bit := range maxBits {
+			constraintMatrix[bit][numSwitches] = float64(joltRow[bit])
+			constraintMatrix[bit+maxBits][numSwitches] = -float64(joltRow[bit])
 		}
 
-		if !valid {
-			continue
-		}
-
-		total := 0
-		for _, v := range depVars {
-			total += v
-		}
-		for _, v := range fc {
-			total += v
-		}
-
-		if total < minSum {
-			minSum = total
-		}
+		return branchAndBound(constraintMatrix, slices.Repeat([]float64{1}, numSwitches))
 	}
 
-	if minSum == math.MaxInt32 {
-		return -1
-	}
-	return minSum
-}
-
-func generateFreeParamCombos(nparam int, bounds []int) [][]int {
-	if nparam == 0 {
-		return [][]int{{}}
-	}
-	ret := [][]int{}
-	bound := bounds[len(bounds)-nparam]
-	for i := 0; i <= bound; i++ {
-		for _, sub := range generateFreeParamCombos(nparam-1, bounds) {
-			combo := append([]int{i}, sub...)
-			ret = append(ret, combo)
-		}
-	}
-	return ret
-}
-
-func buildMatrix(machine Machine10) ([][]int, []int) {
-	bm := make([][]int, len(machine.Joltages))
-	for i := range bm {
-		bm[i] = make([]int, len(machine.Buttons))
-		for j := range machine.Buttons {
-			if slices.Contains(machine.Buttons[j], i) {
-				bm[i][j] = 1
-			}
-		}
-	}
-
-	bounds := make([]int, len(machine.Buttons))
-	for i := range machine.Buttons {
-		minPresses := -1
-		for _, toggleIndex := range machine.Buttons[i] {
-			if minPresses == -1 || machine.Joltages[toggleIndex] < minPresses {
-				minPresses = machine.Joltages[toggleIndex]
-			}
-		}
-		bounds[i] = minPresses
-	}
-
-	return bm, bounds
-}
-
-func solveDay10Part2(machines []Machine10) int {
-	fn := func(i int) int {
-		machine := machines[i]
-		buttonMatrix, bounds := buildMatrix(machine)
-		reducedMatrix, reducedTarget, freeParamBounds := reduceButtonMatrix(buttonMatrix, machine.Joltages, bounds)
-		return minimizeButtonPressSum(reducedMatrix, reducedTarget, freeParamBounds)
-	}
-	return utils.Parallelise(utils.IntAcc, fn, len(machines))
+	return utils.Parallelise(utils.IntAcc, processInstance, len(switchBitmasks))
 }
 
 func Day10(input []string) []string {
-	machines := parseDay10(input)
+	switches, lights, jolts := parseInputDay10(input)
 	var part1 int
 	wg := sync.WaitGroup{}
 	wg.Go(func() {
-		part1 = solveDay10Part1(machines)
+		part1 = solveDay10Part1(switches, lights)
 	})
-	part2 := solveDay10Part2(machines)
+	part2 := solveDay10Part2(switches, jolts)
 	wg.Wait()
 	return []string{strconv.Itoa(part1), strconv.Itoa(part2)}
 }
