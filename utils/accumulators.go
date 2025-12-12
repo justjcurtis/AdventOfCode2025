@@ -9,6 +9,10 @@ func IntAcc(a int, b int) int {
 	return a + b
 }
 
+func MultAcc(a int, b int) int {
+	return a * b
+}
+
 func SumAcc(arr []int) int {
 	sum := 0
 	for _, num := range arr {
