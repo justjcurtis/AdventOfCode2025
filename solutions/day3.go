@@ -14,20 +14,20 @@ func parseDay3Line(line string) []int {
 }
 
 func parseDay3Input(input []string) [][]int {
-	result := make([][]int, len(input))
-	for i := range input {
-		result[i] = parseDay3Line(input[i])
+	fn := func(i int) []int {
+		return parseDay3Line(input[i])
 	}
-	return result
+	return utils.ParalleliseMap(fn, len(input))
 }
 
 func solveDay3(banks [][]int, allowed int) int {
 	fn := func(i int) int {
 		bank := banks[i]
+		n := len(bank)
 		startIdx := 0
 		buffer := make([]int, allowed)
 		for current := range allowed {
-			for j := startIdx; j < len(bank)-(allowed-current-1); j++ {
+			for j := startIdx; j < n-(allowed-current-1); j++ {
 				num := bank[j]
 				if num > buffer[current] {
 					buffer[current] = num
