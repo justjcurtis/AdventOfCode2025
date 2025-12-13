@@ -67,16 +67,17 @@ func checkCollisions(positions []Vec, corner0, corner1 Vec, idx0, idx1 int) bool
 
 func solveDay9(positions []Vec, part2 bool) int {
 	var bestArea atomic.Int64
+	n := len(positions)
 	upper := 1575
 	lower := upper - 5
 	upper *= utils.IntPow10(6)
 	lower *= utils.IntPow10(6)
-	if len(positions) < 100 {
+	if n < 100 {
 		lower = 0
 	}
 	fn := func(i int) {
 		a := positions[i]
-		for j := i + 1; j < len(positions); j++ {
+		for j := i + 1; j < n; j++ {
 			b := positions[j]
 			width := utils.IntAbs(a.X-b.X) + 1
 			height := utils.IntAbs(a.Y-b.Y) + 1
@@ -84,13 +85,14 @@ func solveDay9(positions []Vec, part2 bool) int {
 			if area <= int(bestArea.Load()) {
 				continue
 			}
-			if part2 && (area < lower || area > upper || !checkCollisions(positions, a, b, i, j)) {
+			if part2 && (area < lower || area > upper ||
+				!checkCollisions(positions, a, b, i, j)) {
 				continue
 			}
 			bestArea.Store(int64(area))
 		}
 	}
-	utils.ParalleliseVoid(fn, len(positions))
+	utils.ParalleliseVoid(fn, n)
 	return int(bestArea.Load())
 }
 
