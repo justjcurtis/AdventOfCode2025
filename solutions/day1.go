@@ -7,12 +7,11 @@ import (
 )
 
 func parseDay1Line(line string) int {
-	factor := 1
-	if line[0] == 'L' {
-		factor = -1
-	}
 	value := utils.Atoi(line[1:])
-	return factor * value
+	if line[0] == 'L' {
+		value = -value
+	}
+	return value
 }
 
 func parseDay1(input []string) []int {
