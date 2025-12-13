@@ -8,10 +8,6 @@ import (
 )
 
 func condenseRanges(ranges [][2]int) [][2]int {
-	if len(ranges) == 0 {
-		return ranges
-	}
-
 	slices.SortFunc(ranges, func(a, b [2]int) int {
 		return a[0] - b[0]
 	})
@@ -55,24 +51,13 @@ func parseInputDay5(input []string) ([][2]int, []int) {
 	return condenseRanges(ranges), ids
 }
 
-func isInRange(id int, r [2]int) bool {
-	return id >= r[0] && id <= r[1]
-}
-
-func isInAnyRange(id int, ranges [][2]int) bool {
-	for _, r := range ranges {
-		if isInRange(id, r) {
-			return true
-		}
-	}
-	return false
-}
-
 func solveDay5Part1(ranges [][2]int, ids []int) int {
 	fn := func(i int) int {
 		id := ids[i]
-		if isInAnyRange(id, ranges) {
-			return 1
+		for _, r := range ranges {
+			if id >= r[0] && id <= r[1] {
+				return 1
+			}
 		}
 		return 0
 	}
