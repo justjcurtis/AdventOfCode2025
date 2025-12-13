@@ -67,8 +67,10 @@ func checkCollisions(positions []Vec, corner0, corner1 Vec, idx0, idx1 int) bool
 
 func solveDay9(positions []Vec, part2 bool) int {
 	var bestArea atomic.Int64
-	upper := 1575000000
-	lower := 1570000000
+	upper := 1575
+	lower := upper - 5
+	upper *= utils.IntPow10(6)
+	lower *= utils.IntPow10(6)
 	if len(positions) < 100 {
 		lower = 0
 	}
