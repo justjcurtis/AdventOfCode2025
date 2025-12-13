@@ -5,7 +5,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strconv"
 )
 
 func parseInput(f *os.File) []string {
@@ -27,7 +26,7 @@ func parseInput(f *os.File) []string {
 func GetTestInput(day int) []string {
 	cwd, _ := os.Getwd()
 	parentDir := filepath.Dir(cwd)
-	f, err := os.Open(parentDir + "/puzzleInput/test_" + strconv.Itoa(day) + ".txt")
+	f, err := os.Open(parentDir + "/puzzleInput/test_" + Itoa(day) + ".txt")
 	if err != nil {
 		panic(err)
 	}
@@ -38,7 +37,7 @@ func GetTestInput(day int) []string {
 func GetInputForTest(day int) []string {
 	cwd, _ := os.Getwd()
 	parentDir := filepath.Dir(cwd)
-	f, err := os.Open(parentDir + "/puzzleInput/day_" + strconv.Itoa(day) + ".txt")
+	f, err := os.Open(parentDir + "/puzzleInput/day_" + Itoa(day) + ".txt")
 	if err != nil {
 		panic(err)
 	}
@@ -48,7 +47,7 @@ func GetInputForTest(day int) []string {
 
 func GetInput(day int) []string {
 	cwd, _ := os.Getwd()
-	f, err := os.Open(cwd + "/puzzleInput/day_" + strconv.Itoa(day) + ".txt")
+	f, err := os.Open(cwd + "/puzzleInput/day_" + Itoa(day) + ".txt")
 	if err != nil {
 		panic(err)
 	}

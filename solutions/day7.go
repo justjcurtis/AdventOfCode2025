@@ -2,7 +2,6 @@ package solutions
 
 import (
 	"AdventOfCode2025/utils"
-	"strconv"
 )
 
 func solveDay7(input [][]byte) (int, int) {
@@ -71,5 +70,5 @@ func solveDay7(input [][]byte) (int, int) {
 
 func Day7(input []string) []string {
 	part1, part2 := solveDay7(utils.ConvertToByteMatrix(input))
-	return []string{strconv.Itoa(part1), strconv.Itoa(part2)}
+	return []string{utils.Itoa(part1), utils.Itoa(part2)}
 }

@@ -2,8 +2,8 @@ package solutions
 
 import (
 	. "AdventOfCode2025/models"
+	"AdventOfCode2025/utils"
 	"sort"
-	"strconv"
 	"strings"
 	"sync"
 )
@@ -14,7 +14,7 @@ func parseDay8Input(input []string) []Vec3 {
 		numStrs := strings.Split(line, ",")
 		nums := make([]int, len(numStrs))
 		for j, str := range numStrs {
-			nums[j], _ = strconv.Atoi(str)
+			nums[j] = utils.Atoi(str)
 		}
 		positions[i] = Vec3{
 			X: nums[0],
@@ -192,5 +192,5 @@ func Day8(input []string) []string {
 	})
 	part2 := solveDay8(pairs, order, len(positions), true)
 	wg.Wait()
-	return []string{strconv.Itoa(part1), strconv.Itoa(part2)}
+	return []string{utils.Itoa(part1), utils.Itoa(part2)}
 }

@@ -3,8 +3,8 @@ package solutions
 import (
 	"AdventOfCode2025/utils"
 	"slices"
-	"strconv"
 	"strings"
+	"sync"
 )
 
 func condenseRanges(ranges [][2]int) [][2]int {
@@ -21,7 +21,7 @@ func condenseRanges(ranges [][2]int) [][2]int {
 		next := ranges[i+1]
 
 		if current[1] >= next[0]-1 {
-			merged := [2]int{current[0], int(max(float64(current[1]), float64(next[1])))}
+			merged := [2]int{current[0], utils.IntMax(current[1], next[1])}
 			ranges[i] = merged
 			ranges = append(ranges[:i+1], ranges[i+2:]...)
 		} else {
@@ -43,12 +43,12 @@ func parseInputDay5(input []string) ([][2]int, []int) {
 		}
 		if rangeGetting {
 			parts := strings.Split(line, "-")
-			a, _ := strconv.Atoi(parts[0])
-			b, _ := strconv.Atoi(parts[1])
+			a := utils.Atoi(parts[0])
+			b := utils.Atoi(parts[1])
 			ranges = append(ranges, [2]int{a, b})
 			continue
 		}
-		id, _ := strconv.Atoi(line)
+		id := utils.Atoi(line)
 		ids = append(ids, id)
 	}
 
@@ -89,7 +89,12 @@ func solveDay5Part2(ranges [][2]int) int {
 
 func Day5(input []string) []string {
 	ranges, ids := parseInputDay5(input)
-	part1 := solveDay5Part1(ranges, ids)
+	var part1 int
+	wg := sync.WaitGroup{}
+	wg.Go(func() {
+		part1 = solveDay5Part1(ranges, ids)
+	})
 	part2 := solveDay5Part2(ranges)
-	return []string{strconv.Itoa(part1), strconv.Itoa(part2)}
+	wg.Wait()
+	return []string{utils.Itoa(part1), utils.Itoa(part2)}
 }

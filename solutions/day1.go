@@ -3,8 +3,6 @@ package solutions
 
 import (
 	"AdventOfCode2025/utils"
-	"math"
-	"strconv"
 	"sync"
 )
 
@@ -13,7 +11,7 @@ func parseDay1Line(line string) int {
 	if line[0] == 'L' {
 		factor = -1
 	}
-	value, _ := strconv.Atoi(line[1:])
+	value := utils.Atoi(line[1:])
 	return factor * value
 }
 
@@ -41,7 +39,7 @@ func solveDay1Part2(moves []int) int {
 	count := 0
 	for _, move := range moves {
 		prev := value
-		absMove := int(math.Abs(float64(move)))
+		absMove := utils.IntAbs(move)
 		count += absMove / 100
 		rem := move % 100
 		after := prev + rem
@@ -83,5 +81,5 @@ func Day1(input []string) []string {
 		part2 = solveDay1Part2(parsed)
 	}()
 	wg.Wait()
-	return []string{strconv.Itoa(part1), strconv.Itoa(part2)}
+	return []string{utils.Itoa(part1), utils.Itoa(part2)}
 }

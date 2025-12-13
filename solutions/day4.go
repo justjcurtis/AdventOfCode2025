@@ -2,7 +2,6 @@ package solutions
 
 import (
 	"AdventOfCode2025/utils"
-	"strconv"
 	"sync"
 )
 
@@ -25,8 +24,8 @@ func solveDay4(grid [][]rune, runForever bool) int {
 	stack := make([]int, totalSize)
 
 	pos := 0
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
+	for y := range height {
+		for x := range width {
 			char := grid[y][x]
 			g[pos] = byte(char)
 			stack[pos] = pos
@@ -74,18 +73,12 @@ func solveDay4(grid [][]rune, runForever bool) int {
 
 func Day4(input []string) []string {
 	grid := parseInputDay4(input)
-	_ = grid
 	wg := sync.WaitGroup{}
-	wg.Add(2)
-	var part1, part2 int
-	go func() {
-		defer wg.Done()
+	var part1 int
+	wg.Go(func() {
 		part1 = solveDay4(grid, false)
-	}()
-	go func() {
-		defer wg.Done()
-		part2 = solveDay4(grid, true)
-	}()
+	})
+	part2 := solveDay4(grid, true)
 	wg.Wait()
-	return []string{strconv.Itoa(part1), strconv.Itoa(part2)}
+	return []string{utils.Itoa(part1), utils.Itoa(part2)}
 }

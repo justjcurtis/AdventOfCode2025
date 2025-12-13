@@ -3,7 +3,7 @@ package solutions
 import (
 	"AdventOfCode2025/utils"
 	"fmt"
-	"strconv"
+	"sync"
 )
 
 type WorkbookColumn struct {
@@ -136,7 +136,12 @@ func solveDay6(columns []WorkbookColumn, cephalopod bool) int {
 
 func Day6(input []string) []string {
 	parsed := parseDay6Input(input)
-	part1 := solveDay6(parsed, false)
+	var part1 int
+	wg := sync.WaitGroup{}
+	wg.Go(func() {
+		part1 = solveDay6(parsed, false)
+	})
 	part2 := solveDay6(parsed, true)
-	return []string{strconv.Itoa(part1), strconv.Itoa(part2)}
+	wg.Wait()
+	return []string{utils.Itoa(part1), utils.Itoa(part2)}
 }

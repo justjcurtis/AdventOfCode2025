@@ -2,7 +2,6 @@ package solutions
 
 import (
 	"AdventOfCode2025/utils"
-	"strconv"
 	"sync"
 )
 
@@ -27,7 +26,7 @@ func solveDay3(banks [][]int, allowed int) int {
 		bank := banks[i]
 		startIdx := 0
 		buffer := make([]int, allowed)
-		for current := 0; current < allowed; current++ {
+		for current := range allowed {
 			for j := startIdx; j < len(bank)-(allowed-current-1); j++ {
 				num := bank[j]
 				if num > buffer[current] {
@@ -40,8 +39,7 @@ func solveDay3(banks [][]int, allowed int) int {
 		for j, val := range buffer {
 			r[j] = rune(val + '0')
 		}
-		result, _ := strconv.Atoi(string(r))
-		return result
+		return utils.Atoi(string(r))
 	}
 	return utils.Parallelise(utils.IntAcc, fn, len(banks))
 }
@@ -60,5 +58,5 @@ func Day3(input []string) []string {
 		part2 = solveDay3(banks, 12)
 	}()
 	wg.Wait()
-	return []string{strconv.Itoa(part1), strconv.Itoa(part2)}
+	return []string{utils.Itoa(part1), utils.Itoa(part2)}
 }

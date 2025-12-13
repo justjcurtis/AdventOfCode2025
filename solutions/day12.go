@@ -2,21 +2,12 @@ package solutions
 
 import (
 	"AdventOfCode2025/utils"
-	"strconv"
 	"strings"
 )
 
 type Space struct {
 	area     int
 	required []int
-}
-
-func atoi(s string) int {
-	result := 0
-	for _, ch := range s {
-		result = result*10 + int(ch-'0')
-	}
-	return result
 }
 
 func parseInputDay12(input []string) ([]int, []Space) {
@@ -32,12 +23,12 @@ func parseInputDay12(input []string) ([]int, []Space) {
 		if strings.Contains(line, "x") {
 			strs := strings.Split(line, ": ")
 			dimensions := strings.Split(strs[0], "x")
-			width := atoi(dimensions[0])
-			height := atoi(dimensions[1])
+			width := utils.Atoi(dimensions[0])
+			height := utils.Atoi(dimensions[1])
 			space := Space{area: width * height, required: []int{}}
 			countStrs := strings.SplitSeq(strs[1], " ")
 			for countStr := range countStrs {
-				space.required = append(space.required, atoi(countStr))
+				space.required = append(space.required, utils.Atoi(countStr))
 			}
 			spaces = append(spaces, space)
 			continue
@@ -68,5 +59,5 @@ func solveDay12(blocks []int, spaces []Space) int {
 func Day12(input []string) []string {
 	blocks, spaces := parseInputDay12(input)
 	part1 := solveDay12(blocks, spaces)
-	return []string{strconv.Itoa(part1)}
+	return []string{utils.Itoa(part1)}
 }

@@ -2,7 +2,6 @@ package solutions
 
 import (
 	"AdventOfCode2025/utils"
-	"strconv"
 	"strings"
 	"sync"
 )
@@ -73,5 +72,5 @@ func Day11(input []string) []string {
 	})
 	part2 := solveDay11Part2(devices)
 	wg.Wait()
-	return []string{strconv.Itoa(part1), strconv.Itoa(part2)}
+	return []string{utils.Itoa(part1), utils.Itoa(part2)}
 }

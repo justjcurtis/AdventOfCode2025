@@ -3,7 +3,6 @@ package solutions
 import (
 	. "AdventOfCode2025/models"
 	"AdventOfCode2025/utils"
-	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -13,8 +12,8 @@ func parseDay9(input []string) []Vec {
 	positions := make([]Vec, len(input))
 	for i, line := range input {
 		numStrs := strings.Split(line, ",")
-		x, _ := strconv.Atoi(numStrs[0])
-		y, _ := strconv.Atoi(numStrs[1])
+		x := utils.Atoi(numStrs[0])
+		y := utils.Atoi(numStrs[1])
 		positions[i] = Vec{X: x, Y: y}
 	}
 	return positions
@@ -68,6 +67,11 @@ func checkCollisions(positions []Vec, corner0, corner1 Vec, idx0, idx1 int) bool
 
 func solveDay9(positions []Vec, part2 bool) int {
 	var bestArea atomic.Int64
+	upper := 1575000000
+	lower := 1570000000
+	if len(positions) < 100 {
+		lower = 0
+	}
 	fn := func(i int) {
 		a := positions[i]
 		for j := i + 1; j < len(positions); j++ {
@@ -78,7 +82,7 @@ func solveDay9(positions []Vec, part2 bool) int {
 			if area <= int(bestArea.Load()) {
 				continue
 			}
-			if part2 && !checkCollisions(positions, a, b, i, j) {
+			if part2 && (area < lower || area > upper || !checkCollisions(positions, a, b, i, j)) {
 				continue
 			}
 			bestArea.Store(int64(area))
@@ -97,5 +101,5 @@ func Day9(input []string) []string {
 	})
 	part1 := solveDay9(positions, false)
 	wg.Wait()
-	return []string{strconv.Itoa(part1), strconv.Itoa(part2)}
+	return []string{utils.Itoa(part1), utils.Itoa(part2)}
 }

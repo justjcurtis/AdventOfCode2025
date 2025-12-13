@@ -2,7 +2,6 @@ package solutions
 
 import (
 	"AdventOfCode2025/utils"
-	"strconv"
 	"strings"
 	"sync"
 )
@@ -12,8 +11,8 @@ func parseDay2(input []string) [][]int {
 	ranges := make([][]int, len(rangeStrings))
 	for i, r := range rangeStrings {
 		bounds := strings.Split(r, "-")
-		intMin, _ := strconv.Atoi(bounds[0])
-		intMax, _ := strconv.Atoi(bounds[1])
+		intMin := utils.Atoi(bounds[0])
+		intMax := utils.Atoi(bounds[1])
 		ranges[i] = []int{intMin, intMax}
 	}
 	return ranges
@@ -62,7 +61,7 @@ func solveDay2Fast(ranges [][]int, unlocked bool) int {
 
 				var multiplier int64 = 0
 				var factor int64 = 1
-				for i := 0; i < k; i++ {
+				for range k {
 					multiplier += factor
 					factor *= int64(utils.IntPow10(p))
 				}
@@ -124,5 +123,5 @@ func Day2(input []string) []string {
 	}()
 
 	wg.Wait()
-	return []string{strconv.Itoa(day2Part1), strconv.Itoa(day2Part2)}
+	return []string{utils.Itoa(day2Part1), utils.Itoa(day2Part2)}
 }

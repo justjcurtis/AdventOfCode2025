@@ -6,7 +6,6 @@ import (
 	"math"
 	"math/bits"
 	"slices"
-	"strconv"
 	"sync"
 )
 
@@ -363,5 +362,5 @@ func Day10(input []string) []string {
 	})
 	part2 := solveDay10Part2(switches, jolts)
 	wg.Wait()
-	return []string{strconv.Itoa(part1), strconv.Itoa(part2)}
+	return []string{utils.Itoa(part1), utils.Itoa(part2)}
 }
