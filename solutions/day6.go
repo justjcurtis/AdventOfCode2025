@@ -66,15 +66,13 @@ func parseDay6Col(input []string, start, width, height int) WorkbookColumn {
 func parseDay6Input(input []string) []WorkbookColumn {
 	height := len(input)
 	colsInfo := getCols(input)
-	columns := make([]WorkbookColumn, len(colsInfo))
-	fn := func(i int) {
+	fn := func(i int) WorkbookColumn {
 		colInfo := colsInfo[i]
 		start := colInfo[0]
 		colWidth := colInfo[1]
-		columns[i] = parseDay6Col(input, start, colWidth, height)
+		return parseDay6Col(input, start, colWidth, height)
 	}
-	utils.ParalleliseVoid(fn, len(colsInfo))
-	return columns
+	return utils.ParalleliseMap(fn, len(colsInfo))
 }
 
 func doOperation(a int, b int, op byte) int {
