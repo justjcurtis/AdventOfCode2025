@@ -6,11 +6,10 @@ import (
 )
 
 func parseInputDay4(input []string) [][]rune {
-	grid := make([][]rune, len(input))
-	for i, line := range input {
-		grid[i] = []rune(line)
+	fn := func(i int) []rune {
+		return []rune(input[i])
 	}
-	return grid
+	return utils.ParalleliseMap(fn, len(input))
 }
 
 var dirs = []struct{ dx, dy int }{{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}}
