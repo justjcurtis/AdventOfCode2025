@@ -70,16 +70,11 @@ func solveDay1Part2(moves []int) int {
 func Day1(input []string) []string {
 	parsed := parseDay1(input)
 	wg := sync.WaitGroup{}
-	wg.Add(2)
-	var part1, part2 int
-	go func() {
-		defer wg.Done()
+	var part1 int
+	wg.Go(func() {
 		part1 = solveDay1Part1(parsed)
-	}()
-	go func() {
-		defer wg.Done()
-		part2 = solveDay1Part2(parsed)
-	}()
+	})
+	part2 := solveDay1Part2(parsed)
 	wg.Wait()
 	return []string{utils.Itoa(part1), utils.Itoa(part2)}
 }

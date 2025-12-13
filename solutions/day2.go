@@ -106,22 +106,12 @@ func solveDay2Fast(ranges [][]int, unlocked bool) int {
 
 func Day2(input []string) []string {
 	parsed := parseDay2(input)
-
 	wg := sync.WaitGroup{}
-	wg.Add(2)
-
-	var day2Part1, day2Part2 int
-
-	go func() {
-		defer wg.Done()
-		day2Part1 = solveDay2Fast(parsed, false)
-	}()
-
-	go func() {
-		defer wg.Done()
-		day2Part2 = solveDay2Fast(parsed, true)
-	}()
-
+	var part1 int
+	wg.Go(func() {
+		part1 = solveDay2Fast(parsed, false)
+	})
+	part2 := solveDay2Fast(parsed, true)
 	wg.Wait()
-	return []string{utils.Itoa(day2Part1), utils.Itoa(day2Part2)}
+	return []string{utils.Itoa(part1), utils.Itoa(part2)}
 }

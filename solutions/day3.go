@@ -47,16 +47,11 @@ func solveDay3(banks [][]int, allowed int) int {
 func Day3(input []string) []string {
 	banks := parseDay3Input(input)
 	wg := sync.WaitGroup{}
-	wg.Add(2)
-	var part1, part2 int
-	go func() {
-		defer wg.Done()
+	var part1 int
+	wg.Go(func() {
 		part1 = solveDay3(banks, 2)
-	}()
-	go func() {
-		defer wg.Done()
-		part2 = solveDay3(banks, 12)
-	}()
+	})
+	part2 := solveDay3(banks, 12)
 	wg.Wait()
 	return []string{utils.Itoa(part1), utils.Itoa(part2)}
 }
