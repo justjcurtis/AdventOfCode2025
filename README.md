@@ -97,7 +97,7 @@ Results show are the min runtime for each soltuion taken over 1000 runs on an M2
 | - | -------------------- |
 | Day 1 | 22µs |
 | Day 2 | 5µs |
-| Day 3 | 43µs |
+| Day 3 | 38µs |
 | Day 4 | 543µs |
 | Day 5 | 43µs |
 | Day 6 | 75µs |
