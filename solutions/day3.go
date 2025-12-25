@@ -20,6 +20,14 @@ func parseDay3Input(input []string) [][]int {
 	return utils.ParalleliseMap(fn, len(input))
 }
 
+func buffToInt(buffer []int) int {
+	result := 0
+	for _, val := range buffer {
+		result = result*10 + val
+	}
+	return result
+}
+
 func solveDay3(banks [][]int, allowed int) int {
 	fn := func(i int) int {
 		bank := banks[i]
@@ -35,11 +43,7 @@ func solveDay3(banks [][]int, allowed int) int {
 				}
 			}
 		}
-		r := make([]rune, allowed)
-		for j, val := range buffer {
-			r[j] = rune(val + '0')
-		}
-		return utils.Atoi(string(r))
+		return buffToInt(buffer)
 	}
 	return utils.Parallelise(utils.IntAcc, fn, len(banks))
 }
