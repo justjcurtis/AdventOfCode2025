@@ -12,20 +12,27 @@ func condenseRanges(ranges [][2]int) [][2]int {
 		return a[0] - b[0]
 	})
 
-	for i := 0; i < len(ranges)-1; {
-		current := ranges[i]
-		next := ranges[i+1]
+	currentStart, currentEnd := ranges[0][0], ranges[0][1]
 
-		if current[1] >= next[0]-1 {
-			merged := [2]int{current[0], utils.IntMax(current[1], next[1])}
-			ranges[i] = merged
-			ranges = append(ranges[:i+1], ranges[i+2:]...)
-		} else {
-			i++
+	lastMergedIndex := 0
+	for i := 1; i < len(ranges); i++ {
+		start, end := ranges[i][0], ranges[i][1]
+		if start <= currentEnd {
+			if end > currentEnd {
+				currentEnd = end
+			}
+			continue
 		}
+		ranges[lastMergedIndex][0] = currentStart
+		ranges[lastMergedIndex][1] = currentEnd
+		lastMergedIndex++
+		currentStart, currentEnd = start, end
 	}
 
-	return ranges
+	ranges[lastMergedIndex][0] = currentStart
+	ranges[lastMergedIndex][1] = currentEnd
+
+	return ranges[:lastMergedIndex+1]
 }
 
 func parseInputDay5(input []string) ([][2]int, []int) {
