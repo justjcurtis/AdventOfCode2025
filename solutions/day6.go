@@ -21,22 +21,16 @@ func newColBuffer(height int) [][]byte {
 
 func getCols(input []string) [][2]int {
 	width := len(input[0])
-	height := len(input)
+	i := len(input) - 1
 	result := [][2]int{}
 	lastGap := 0
-	for j := range width {
-		isGap := true
-		for i := 0; i < height-1; i++ {
-			char := input[i][j]
-			if char != ' ' {
-				isGap = false
-				break
-			}
+	for j := 1; j < width; j++ {
+		char := input[i][j]
+		if char == ' ' {
+			continue
 		}
-		if isGap {
-			result = append(result, [2]int{lastGap, j - lastGap})
-			lastGap = j + 1
-		}
+		result = append(result, [2]int{lastGap, (j - 1) - lastGap})
+		lastGap = j
 	}
 	result = append(result, [2]int{lastGap, width - lastGap})
 	return result
